@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 
 import TodoItem from "./todo-item";
 import "./styles.css";
+import axios from "axios";
 
 class App extends React.Component {
   constructor() {
@@ -14,6 +15,12 @@ class App extends React.Component {
     };
   }
 
+  componentDidMount() {
+    fetch("http://localhost:5000/todos")
+      .then(response => response.json())
+      .then(data => this.setState({ todos: data }));
+  }
+
   onChange = event => {
     this.setState({
       todo: event.target.value
@@ -22,16 +29,50 @@ class App extends React.Component {
 
   renderTodos = () => {
     return this.state.todos.map(item => {
-      return <TodoItem title={item} />;
+      return (
+        <TodoItem
+          id={item[0]}
+          key={item[0]}
+          title={item[1]}
+          done={item[2]}
+          deleteItem={this.deleteItem}
+        />
+      );
     });
   };
 
   addTodo = event => {
     event.preventDefault();
-    this.setState({
-      todos: [...this.state.todos, this.state.todo],
-      todo: ""
-    });
+    axios({
+      method: "post",
+      url: "http://localhost:5000/add-todo",
+      headers: { "content-type": "application/json" },
+      data: {
+        title: this.state.todo,
+        done: false
+      }
+    })
+      .then(data => {
+        this.setState({
+          todos: [...this.state.todos, data.data],
+          todo: ""
+        });
+      })
+      .catch(error => console.log(error));
+  };
+
+  deleteItem = id => {
+    fetch(`http://localhost:5000/todo/${id}`, {
+      method: "DELETE"
+    })
+      .then(
+        this.setState({
+          todos: this.state.todos.filter(item => {
+            return item[0] !== id;
+          })
+        })
+      )
+      .catch(error => console.log(error));
   };
 
   render() {

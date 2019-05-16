@@ -33,7 +33,8 @@ button {
 .todo-item {
   display: flex;
   align-items: center;
-  width: 80%;
+
+  width: 60%;
 }
 
 .done {
