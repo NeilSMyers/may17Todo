@@ -17,7 +17,7 @@ class TodoItem extends React.Component {
       },
       body: JSON.stringify({
         title: this.props.title,
-        done: !this.props.done
+        done: !this.state.done
       })
     })
       .then(
